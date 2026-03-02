@@ -71,15 +71,11 @@ function MatchCard({ match }: { match: Match }) {
   return (
     <div
       className={cn(
-        "min-w-[300px] md:min-w-0 bg-card rounded-xl flex flex-col overflow-hidden",
-        "border border-border shadow-card",
-        "transition-shadow hover:shadow-card-hover",
+        "min-w-[300px] md:min-w-0 bg-card rounded-lg flex flex-col overflow-hidden",
+        "border border-border/60",
       )}
     >
-      {/* Red top accent line */}
-      <div className="h-[3px] w-full bg-primary flex-shrink-0" />
-
-      <div className="px-3 pt-2.5 pb-0 flex flex-col gap-0">
+      <div className="px-3 pt-3 pb-0 flex flex-col gap-0">
         {/* Top row: tournament name + live badge */}
         <div className="flex items-start justify-between gap-2 mb-0.5">
           <span className="text-[12px] font-bold text-card-foreground leading-snug flex-1">
@@ -89,18 +85,18 @@ function MatchCard({ match }: { match: Match }) {
         </div>
 
         {/* Subtitle: match stage */}
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2.5">
           {match.stage}
         </p>
 
-        {/* Teams section */}
-        <div className="flex flex-col divide-y divide-border/50">
+        {/* Teams section - no divider, clean spacing */}
+        <div className="flex flex-col gap-1.5">
           <TeamRow team={match.team1} />
           <TeamRow team={match.team2} />
         </div>
 
         {/* Status row */}
-        <div className="mt-2 mb-2">
+        <div className="mt-2.5 mb-2.5">
           <StatusText status={match.status} text={match.statusText} />
         </div>
       </div>
@@ -129,14 +125,23 @@ function MatchCard({ match }: { match: Match }) {
 
 export default function FeaturedMatches() {
   return (
-    <section className="mt-7">
-      <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-        <span className="w-1 h-4 rounded-full bg-primary inline-block" />
-        Featured Matches
-      </h2>
+    <section className="mt-8">
+      {/* Section header: title left-aligned, View All on the right */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold flex items-center gap-2">
+          <span className="w-1 h-4 rounded-full bg-primary inline-block" />
+          Featured Matches
+        </h2>
+        <button
+          type="button"
+          className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+        >
+          View All
+        </button>
+      </div>
 
       {/* Mobile: horizontal snap scroll */}
-      <div className="md:hidden flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+      <div className="md:hidden flex gap-3 overflow-x-auto scrollbar-hide pb-2">
         {matches.map((match) => (
           <MatchCard key={match.id} match={match} />
         ))}

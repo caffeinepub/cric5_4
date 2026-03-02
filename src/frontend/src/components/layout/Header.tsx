@@ -200,28 +200,29 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
         <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Left: Hamburger */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            className={cn(
-              "flex items-center justify-center w-9 h-9 rounded-md",
-              "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
-            )}
-            aria-label="Open menu"
-            aria-expanded={menuOpen}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          {/* Left: Hamburger + Logo */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              className={cn(
+                "flex items-center justify-center w-9 h-9 rounded-md",
+                "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
+              )}
+              aria-label="Open menu"
+              aria-expanded={menuOpen}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
 
-          {/* Center: Logo */}
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/" })}
-            className="text-2xl font-black tracking-tighter text-primary hover:opacity-90 transition-opacity"
-          >
-            cric<span className="text-foreground">5</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/" })}
+              className="text-2xl font-black tracking-tighter text-primary hover:opacity-90 transition-opacity"
+            >
+              cric<span className="text-foreground">5</span>
+            </button>
+          </div>
 
           {/* Right: Theme + Login */}
           <div className="flex items-center gap-1">
