@@ -1,0 +1,11 @@
+{
+  "name": "cric5",
+  "short_name": "cric5",
+  "description": "Your cricket companion — live scores, news, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d18",
+  "theme_color": "#cc2200",
+  "orientation": "portrait",
+  "icons": []
+}
