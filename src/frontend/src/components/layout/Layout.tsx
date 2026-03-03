@@ -6,7 +6,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <main className="max-w-[1200px] mx-auto px-4 pt-4 pb-24 md:pb-10">
+      <main className="max-w-[1200px] mx-auto pt-4 pb-24 md:pb-10">
         <Outlet />
       </main>
       <BottomNav />

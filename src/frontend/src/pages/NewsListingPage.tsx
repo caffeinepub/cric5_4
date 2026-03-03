@@ -3,7 +3,7 @@ import { articles } from "@/data/news";
 
 export default function NewsListingPage() {
   return (
-    <div>
+    <div className="px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
         {articles.map((article) => (
           <NewsCard key={article.id} article={article} />

@@ -1,6 +1,9 @@
 import Layout from "@/components/layout/Layout";
+import { AuthProvider } from "@/context/AuthContext";
+import { FantasyProvider } from "@/context/FantasyContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import HomePage from "@/pages/HomePage";
+import MatchDetailPage from "@/pages/MatchDetailPage";
 import MatchesPage from "@/pages/MatchesPage";
 import NewsListingPage from "@/pages/NewsListingPage";
 import SingleArticlePage from "@/pages/SingleArticlePage";
@@ -48,11 +51,18 @@ const winRoute = createRoute({
   component: WinPage,
 });
 
+const matchDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/matches/$id",
+  component: MatchDetailPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   newsRoute,
   newsArticleRoute,
   matchesRoute,
+  matchDetailRoute,
   winRoute,
 ]);
 
@@ -67,7 +77,11 @@ declare module "@tanstack/react-router" {
 export default function App() {
   return (
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <FantasyProvider>
+          <RouterProvider router={router} />
+        </FantasyProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

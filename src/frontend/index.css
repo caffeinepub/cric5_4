@@ -59,7 +59,7 @@
 
   /* Light mode */
   .light {
-    --background: 0.97 0.005 285;
+    --background: 1 0 0;
     --foreground: 0.15 0.01 285;
     --card: 1 0 0;
     --card-foreground: 0.15 0.01 285;

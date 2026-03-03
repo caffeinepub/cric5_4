@@ -1,4 +1,7 @@
+import LoginModal from "@/components/auth/LoginModal";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { matchDetails } from "@/data/matchDetails";
 import { articles } from "@/data/news";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
@@ -6,6 +9,7 @@ import {
   Calendar,
   ChevronLeft,
   Home,
+  LogOut,
   Menu,
   Moon,
   Newspaper,
@@ -14,13 +18,43 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function isSimplePage(pathname: string): boolean {
-  return pathname.startsWith("/news");
+  return pathname.startsWith("/news") || isMatchDetailPage(pathname);
+}
+
+function isMatchesPage(pathname: string): boolean {
+  return pathname === "/matches";
+}
+
+function isMatchDetailPage(pathname: string): boolean {
+  return /^\/matches\/.+/.test(pathname);
+}
+
+function getMatchDetailTitle(pathname: string): string {
+  const match = pathname.match(/^\/matches\/(.+)$/);
+  if (match) {
+    const id = Number(match[1]);
+    const detail = matchDetails.find((d) => d.id === id);
+    if (detail) return `${detail.team1.code} vs ${detail.team2.code}`;
+    return "Match";
+  }
+  return "Match";
+}
+
+function getMatchDetailSubtitle(pathname: string): string | null {
+  const match = pathname.match(/^\/matches\/(.+)$/);
+  if (match) {
+    const id = Number(match[1]);
+    const detail = matchDetails.find((d) => d.id === id);
+    if (detail) return detail.tournament;
+  }
+  return null;
 }
 
 function getPageTitle(pathname: string): string {
+  if (isMatchDetailPage(pathname)) return getMatchDetailTitle(pathname);
   if (pathname === "/news") return "News";
   // Extract article id from /news/:id
   const match = pathname.match(/^\/news\/(.+)$/);
@@ -160,26 +194,107 @@ function SidebarDrawer({
   );
 }
 
+// ── User Dropdown ─────────────────────────────────────────────────────────────
+function UserDropdown({
+  username,
+  superCoins,
+  onLogout,
+  onClose,
+}: {
+  username: string;
+  superCoins: number;
+  onLogout: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      {/* Backdrop */}
+      <button
+        type="button"
+        className="fixed inset-0 z-[55] cursor-default border-0 p-0"
+        onClick={onClose}
+        aria-label="Close dropdown"
+        tabIndex={0}
+      />
+      {/* Panel */}
+      <div
+        data-ocid="header.user.dropdown"
+        className="absolute right-0 top-full mt-1 w-52 bg-background border border-border rounded-xl shadow-xl z-[60] overflow-hidden"
+      >
+        {/* User info */}
+        <div className="px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+              <User className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground truncate">
+                {username}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                🪙 {superCoins} coins
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <button
+          type="button"
+          data-ocid="header.logout.button"
+          onClick={() => {
+            onLogout();
+            onClose();
+          }}
+          className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 hover:bg-red-500/5 transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
+  const { isLoggedIn, username, superCoins, logout } = useAuth();
   const navigate = useNavigate();
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const userBtnRef = useRef<HTMLButtonElement>(null);
 
   const simple = isSimplePage(pathname);
 
+  if (isMatchesPage(pathname)) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
+        <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center">
+          <h1 className="text-xl font-bold text-foreground">Matches</h1>
+        </div>
+      </header>
+    );
+  }
+
   if (simple) {
+    const isMatchDetail = isMatchDetailPage(pathname);
+    const backDest = isMatchDetail ? "/matches" : "/";
+    const subtitle = isMatchDetail ? getMatchDetailSubtitle(pathname) : null;
+
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
         <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center relative">
           <button
             type="button"
+            data-ocid="match.detail.back_button"
             onClick={() => {
               if (window.history.length > 1) {
                 window.history.back();
               } else {
-                navigate({ to: "/" });
+                navigate({ to: backDest });
               }
             }}
             className="flex items-center gap-1 text-foreground hover:text-primary transition-colors -ml-1 z-10"
@@ -188,9 +303,16 @@ export default function Header() {
             <ChevronLeft className="w-5 h-5" />
             <span className="text-sm font-medium">Back</span>
           </button>
-          <span className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold tracking-wide max-w-[55%] truncate text-center">
-            {getPageTitle(pathname)}
-          </span>
+          <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center max-w-[55%]">
+            <span className="text-sm font-bold tracking-wide truncate text-center text-foreground">
+              {getPageTitle(pathname)}
+            </span>
+            {subtitle && (
+              <span className="text-[10px] text-muted-foreground font-medium truncate">
+                {subtitle}
+              </span>
+            )}
+          </div>
         </div>
       </header>
     );
@@ -224,7 +346,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Right: Theme + Login */}
+          {/* Right: Theme + Login/User */}
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -241,16 +363,53 @@ export default function Header() {
                 <Moon className="w-4.5 h-4.5" />
               )}
             </button>
-            <button
-              type="button"
-              className={cn(
-                "flex items-center justify-center w-9 h-9 rounded-md",
-                "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
+
+            {/* Login or User button */}
+            <div className="relative">
+              {isLoggedIn ? (
+                <button
+                  ref={userBtnRef}
+                  type="button"
+                  data-ocid="header.login.button"
+                  onClick={() => setDropdownOpen((o) => !o)}
+                  className={cn(
+                    "flex items-center gap-1.5 h-9 px-2 rounded-md",
+                    "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
+                  )}
+                  aria-label="User menu"
+                >
+                  <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                    <User className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <span className="text-xs font-bold text-foreground hidden sm:block">
+                    🪙 {superCoins}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  data-ocid="header.login.button"
+                  onClick={() => setLoginOpen(true)}
+                  className={cn(
+                    "flex items-center justify-center w-9 h-9 rounded-md",
+                    "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
+                  )}
+                  aria-label="Login"
+                >
+                  <User className="w-4.5 h-4.5" />
+                </button>
               )}
-              aria-label="Login"
-            >
-              <User className="w-4.5 h-4.5" />
-            </button>
+
+              {/* Dropdown */}
+              {dropdownOpen && isLoggedIn && (
+                <UserDropdown
+                  username={username}
+                  superCoins={superCoins}
+                  onLogout={logout}
+                  onClose={() => setDropdownOpen(false)}
+                />
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -260,6 +419,8 @@ export default function Header() {
         onClose={() => setMenuOpen(false)}
         pathname={pathname}
       />
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   );
 }

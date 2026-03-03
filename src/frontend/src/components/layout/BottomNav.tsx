@@ -32,9 +32,6 @@ export default function BottomNav() {
             >
               <Icon className={cn("w-5 h-5", isActive && "stroke-[2.5px]")} />
               <span>{label}</span>
-              {isActive && (
-                <span className="absolute bottom-0 w-8 h-0.5 bg-primary rounded-full" />
-              )}
             </Link>
           );
         })}

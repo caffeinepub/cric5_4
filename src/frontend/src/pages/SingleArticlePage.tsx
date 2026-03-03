@@ -10,7 +10,7 @@ export default function SingleArticlePage() {
 
   if (!article) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4">
         <p className="text-muted-foreground text-lg">Article not found.</p>
         <button
           type="button"
@@ -28,7 +28,7 @@ export default function SingleArticlePage() {
   const related = articles.filter((a) => a.id !== article.id).slice(0, 3);
 
   return (
-    <article className="max-w-3xl mx-auto">
+    <article className="max-w-3xl mx-auto px-4">
       {/* Category + Title */}
       <div className="mb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-primary">

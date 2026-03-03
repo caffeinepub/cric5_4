@@ -5,7 +5,7 @@ import TopStories from "@/components/home/TopStories";
 
 export default function HomePage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4">
       <HeroSlider />
       <FeaturedMatches />
       <TopStories />
